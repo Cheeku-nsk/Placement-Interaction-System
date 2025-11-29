@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import Header from "@/components/Header";
 import StudentDashboard from "@/components/dashboards/StudentDashboard";
@@ -5,8 +6,10 @@ import EmployerDashboard from "@/components/dashboards/EmployerDashboard";
 import AdminDashboard from "@/components/dashboards/AdminDashboard";
 import PlacementOfficerDashboard from "@/components/dashboards/PlacementOfficerDashboard";
 
-const Index = () => {
-    const { role } = useParams();
+const Index = ({ role: propRole }) => {
+    const { role: paramRole } = useParams();
+    const role = propRole || paramRole;
+    const [activeTab, setActiveTab] = useState("dashboard");
 
     // Validate role
     const validRoles = ["admin", "student", "employer", "placement-officer"];
@@ -15,23 +18,28 @@ const Index = () => {
     }
 
     const renderDashboard = () => {
+        const commonProps = {
+            activeTab,
+            onTabChange: setActiveTab
+        };
+
         switch (role) {
             case "admin":
-                return <AdminDashboard />;
+                return <AdminDashboard {...commonProps} />;
             case "student":
-                return <StudentDashboard />;
+                return <StudentDashboard {...commonProps} />;
             case "employer":
-                return <EmployerDashboard />;
+                return <EmployerDashboard {...commonProps} />;
             case "placement-officer":
-                return <PlacementOfficerDashboard />;
+                return <PlacementOfficerDashboard {...commonProps} />;
             default:
-                return <StudentDashboard />;
+                return <StudentDashboard {...commonProps} />;
         }
     };
 
     return (
         <div className="min-h-screen bg-background">
-            <Header currentRole={role} />
+            <Header currentRole={role} activeTab={activeTab} onNavigate={setActiveTab} />
             <main>
                 {renderDashboard()}
             </main>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,49 +6,37 @@ import JobPostForm from "@/components/JobPostForm";
 import ApplicantManagement from "@/components/ApplicantManagement";
 import JobDetailsDialog from "@/components/JobDetailsDialog";
 import CandidateDetailsDialog from "@/components/CandidateDetailsDialog";
-import { Plus, Users, Eye, Clock, CheckCircle, Star, MapPin, Calendar, Download, Filter, Search } from "lucide-react";
-const EmployerDashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+import { storage } from "@/services/storage";
+import { toast } from "sonner";
+import { Plus, Users, Eye, Clock, CheckCircle, Star, MapPin, Calendar, Download, Filter, Search, Trash2 } from "lucide-react";
+const EmployerDashboard = ({ activeTab = "dashboard", onTabChange }) => {
+  // activeTab is now a prop
   const [showJobForm, setShowJobForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
   const [candidateDetailsOpen, setCandidateDetailsOpen] = useState(false);
-  const jobPostings = [
-    {
-      id: 1,
-      title: "Senior Software Engineer",
-      department: "Engineering",
-      posted: "2024-01-10",
-      applications: 45,
-      status: "active",
-      deadline: "2024-01-25",
-      location: "Bangalore",
-      salary: "₹12-18 LPA"
-    },
-    {
-      id: 2,
-      title: "Product Manager",
-      department: "Product",
-      posted: "2024-01-08",
-      applications: 32,
-      status: "active",
-      deadline: "2024-01-22",
-      location: "Mumbai",
-      salary: "₹15-22 LPA"
-    },
-    {
-      id: 3,
-      title: "Data Scientist",
-      department: "Analytics",
-      posted: "2024-01-05",
-      applications: 28,
-      status: "closed",
-      deadline: "2024-01-15",
-      location: "Hyderabad",
-      salary: "₹10-15 LPA"
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    setJobs(storage.getJobs());
+  }, []);
+
+  const handleDeleteJob = (jobId) => {
+    if (confirm("Are you sure you want to delete this job?")) {
+      storage.deleteJob(jobId);
+      setJobs(storage.getJobs());
+      toast.success("Job deleted successfully");
     }
-  ];
+  };
+
+  const handlePostJob = (jobData) => {
+    storage.addJob(jobData);
+    setJobs(storage.getJobs());
+    setShowJobForm(false);
+    toast.success("Job posted successfully");
+  };
+
   const candidates = [
     {
       id: 1,
@@ -103,13 +91,13 @@ const EmployerDashboard = () => {
   };
   const renderContent = () => {
     if (showJobForm) {
-      return <JobPostForm onClose={() => setShowJobForm(false)} />;
+      return <JobPostForm onClose={() => setShowJobForm(false)} onSubmit={handlePostJob} />;
     }
     switch (activeTab) {
       case "applicants":
         return <ApplicantManagement />;
       case "post-job":
-        return <JobPostForm onClose={() => setActiveTab("dashboard")} />;
+        return <JobPostForm onClose={() => onTabChange && onTabChange("dashboard")} onSubmit={handlePostJob} />;
       default:
         return renderDashboardContent();
     }
@@ -198,7 +186,7 @@ const EmployerDashboard = () => {
         </div>
 
         <div className="space-y-4">
-          {jobPostings.map((job) => (<Card key={job.id} className="card-elevated p-6">
+          {jobs.map((job) => (<Card key={job.id} className="card-elevated p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -244,7 +232,11 @@ const EmployerDashboard = () => {
                   <Eye className="w-4 h-4 mr-2" />
                   View
                 </Button>
-                <Button className="btn-gradient" size="sm" onClick={() => setActiveTab("applicants")}>
+                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteJob(job.id)}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+                <Button className="btn-gradient" size="sm" onClick={() => onTabChange && onTabChange("applicants")}>
                   Manage
                 </Button>
               </div>
@@ -257,7 +249,7 @@ const EmployerDashboard = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Recent Applications</h2>
-          <Button variant="outline" size="sm" onClick={() => setActiveTab("applicants")}>
+          <Button variant="outline" size="sm" onClick={() => onTabChange && onTabChange("applicants")}>
             <Search className="w-4 h-4 mr-2" />
             View All
           </Button>
@@ -316,7 +308,7 @@ const EmployerDashboard = () => {
           </Card>))}
         </div>
 
-        <Button variant="outline" className="w-full" onClick={() => setActiveTab("applicants")}>
+        <Button variant="outline" className="w-full" onClick={() => onTabChange && onTabChange("applicants")}>
           View All Candidates
         </Button>
       </div>
@@ -331,7 +323,7 @@ const EmployerDashboard = () => {
         { id: "applicants", label: "Manage Applicants", icon: Users },
       ].map((tab) => {
         const Icon = tab.icon;
-        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => setActiveTab(tab.id)} className="flex items-center gap-2">
+        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => onTabChange && onTabChange(tab.id)} className="flex items-center gap-2">
           <Icon className="w-4 h-4" />
           {tab.label}
         </Button>);

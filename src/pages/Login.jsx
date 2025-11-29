@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, LogIn } from "lucide-react";
 import { toast } from "sonner";
+import { storage } from "@/services/storage";
 
 const Login = () => {
     const [searchParams] = useSearchParams();
@@ -21,20 +22,40 @@ const Login = () => {
     // Format role label
     const roleLabel = role.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulate login delay
-        setTimeout(() => {
-            setLoading(false);
-            if (formData.email && formData.password) {
-                toast.success(`Welcome back, ${roleLabel}!`);
-                navigate(`/dashboard/${role}`);
-            } else {
-                toast.error("Please fill in all fields");
+        try {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const user = storage.login(formData.email, formData.password);
+
+            toast.success(`Welcome back, ${user.name}!`);
+
+            // Redirect based on role
+            switch (user.role) {
+                case "admin":
+                    navigate("/admin-dashboard");
+                    break;
+                case "student":
+                    navigate("/student-dashboard");
+                    break;
+                case "employer":
+                    navigate("/employer-dashboard");
+                    break;
+                case "placement-officer":
+                    navigate("/placement-officer-dashboard");
+                    break;
+                default:
+                    navigate("/dashboard");
             }
-        }, 1000);
+        } catch (error) {
+            toast.error(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -87,8 +108,37 @@ const Login = () => {
                                 className="bg-background/50"
                             />
                         </div>
+
+                        {/* Demo Credentials Section */}
+                        <div className="p-3 bg-secondary/20 rounded-lg border border-border/50 text-sm">
+                            <p className="font-medium mb-2 text-muted-foreground">Demo Credentials:</p>
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-mono bg-background px-1 rounded">
+                                    {role === 'admin' ? 'admin@example.com' :
+                                        role === 'employer' ? 'employer@example.com' :
+                                            role === 'placement-officer' ? 'officer@example.com' :
+                                                'student@example.com'}
+                                </span>
+                                <span className="text-xs font-mono bg-background px-1 rounded">password123</span>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="w-full mt-2 h-7 text-xs"
+                                onClick={() => setFormData({
+                                    email: role === 'admin' ? 'admin@example.com' :
+                                        role === 'employer' ? 'employer@example.com' :
+                                            role === 'placement-officer' ? 'officer@example.com' :
+                                                'student@example.com',
+                                    password: 'password123'
+                                })}
+                            >
+                                Auto-fill Credentials
+                            </Button>
+                        </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-col gap-4">
                         <Button
                             type="submit"
                             className="w-full btn-gradient"
@@ -103,6 +153,14 @@ const Login = () => {
                                 </>
                             )}
                         </Button>
+                        <div className="text-center text-sm">
+                            <p className="text-muted-foreground">
+                                Don't have an account?{" "}
+                                <Link to="/register" className="text-primary hover:underline font-medium">
+                                    Sign up
+                                </Link>
+                            </p>
+                        </div>
                     </CardFooter>
                 </form>
             </Card>

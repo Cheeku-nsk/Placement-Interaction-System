@@ -1,79 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-    Search,
-    Plus,
-    Filter,
-    Calendar,
-    Building2,
-    Users,
-    MoreVertical,
-    Edit,
-    Trash2,
-    Eye
-} from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Plus, Search, Filter, Calendar, MoreVertical, Eye, Edit, Trash2, Users, MapPin } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import DriveDetailsDialog from "@/components/DriveDetailsDialog";
 import ApplicantsListDialog from "@/components/ApplicantsListDialog";
+import { toast } from "sonner";
+import { storage } from "@/services/storage";
 
 const DriveManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterStatus, setFilterStatus] = useState("all");
     const [selectedDrive, setSelectedDrive] = useState(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [applicantsOpen, setApplicantsOpen] = useState(false);
+    const [drives, setDrives] = useState([]);
 
-    // Mock data for drives
-    const drives = [
-        {
-            id: 1,
-            company: "Microsoft",
-            role: "Software Engineer",
-            date: "2024-01-20",
-            type: "On-Campus",
-            status: "Upcoming",
-            applicants: 156,
-            logo: "M"
-        },
-        {
-            id: 2,
-            company: "Amazon",
-            role: "SDE Intern",
-            date: "2024-01-22",
-            type: "Virtual",
-            status: "Open",
-            applicants: 203,
-            logo: "A"
-        },
-        {
-            id: 3,
-            company: "Google",
-            role: "Product Manager",
-            date: "2024-01-25",
-            type: "On-Campus",
-            status: "Draft",
-            applicants: 0,
-            logo: "G"
-        },
-        {
-            id: 4,
-            company: "TCS",
-            role: "System Engineer",
-            date: "2024-01-15",
-            type: "On-Campus",
-            status: "Completed",
-            applicants: 450,
-            logo: "T"
+    useEffect(() => {
+        setDrives(storage.getDrives());
+    }, []);
+
+    const handleDeleteDrive = (driveId) => {
+        if (confirm("Are you sure you want to delete this drive?")) {
+            storage.deleteDrive(driveId);
+            setDrives(storage.getDrives());
+            toast.success("Drive deleted successfully");
         }
-    ];
+    };
 
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
@@ -84,6 +38,11 @@ const DriveManagement = () => {
             default: return 'bg-gray-100 text-gray-800';
         }
     };
+
+    const filteredDrives = drives.filter(drive =>
+        drive.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        drive.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
@@ -126,14 +85,14 @@ const DriveManagement = () => {
 
             {/* Drives Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {drives.map((drive) => (
+                {filteredDrives.map((drive) => (
                     <Card key={drive.id} className="card-elevated group hover:border-primary/50 transition-all duration-300">
                         <div className="p-6 space-y-4">
                             {/* Card Header */}
                             <div className="flex justify-between items-start">
                                 <div className="flex gap-3">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-xl font-bold text-primary">
-                                        {drive.logo}
+                                        {drive.logo || drive.company[0]}
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-lg">{drive.company}</h3>
@@ -156,7 +115,7 @@ const DriveManagement = () => {
                                         <DropdownMenuItem>
                                             <Edit className="w-4 h-4 mr-2" /> Edit Drive
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="text-destructive">
+                                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteDrive(drive.id)}>
                                             <Trash2 className="w-4 h-4 mr-2" /> Delete
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -179,7 +138,7 @@ const DriveManagement = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Users className="w-4 h-4" />
-                                    <span>{drive.applicants} Applicants</span>
+                                    <span>{drive.applicants || 0} Applicants</span>
                                 </div>
                             </div>
 

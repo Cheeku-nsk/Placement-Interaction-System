@@ -1,19 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import StudentProfile from "@/components/StudentProfile";
 import NotificationCenter from "@/components/NotificationCenter";
 import JobDetailsDialog from "@/components/JobDetailsDialog";
 import ApplicationDialog from "@/components/ApplicationDialog";
-import { Search, Filter, MapPin, Clock, DollarSign, Building2, BookOpen, TrendingUp, Calendar, CheckCircle, XCircle, AlertCircle, User, Bell, Briefcase } from "lucide-react";
-const StudentDashboard = () => {
+import { storage } from "@/services/storage";
+import { toast } from "sonner";
+import { Search, Filter, MapPin, Clock, Building2, CheckCircle, XCircle, AlertCircle, BriefcaseIcon, ChevronRight, Bookmark, User, Bell, BookOpen, TrendingUp, Calendar } from "lucide-react";
+const StudentDashboard = ({ activeTab = "dashboard", onTabChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("dashboard");
+  // activeTab is now a prop
   const [selectedJob, setSelectedJob] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [applicationOpen, setApplicationOpen] = useState(false);
+  const [jobs, setJobs] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    setJobs(storage.getJobs());
+    setApplications(storage.getApplications());
+    setCurrentUser(storage.getCurrentUser());
+  }, []);
+
+  const handleApply = (job) => {
+    setSelectedJob(job);
+    setApplicationOpen(true);
+  };
+
+  const onApplicationSubmit = (applicationData) => {
+    try {
+      storage.addApplication({
+        ...applicationData,
+        jobId: selectedJob.id,
+        studentId: currentUser?.id || 999, // Fallback for demo if no user logged in
+        studentName: currentUser?.name || "Demo Student",
+        jobTitle: selectedJob.title,
+        company: selectedJob.company
+      });
+      setApplications(storage.getApplications());
+      setApplicationOpen(false);
+      toast.success("Application submitted successfully!");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   const mockJobs = [
     {
       id: 1,
@@ -52,32 +87,6 @@ const StudentDashboard = () => {
       status: "new"
     }
   ];
-  const applications = [
-    {
-      id: 1,
-      company: "TechCorp Inc.",
-      position: "Software Developer",
-      status: "pending",
-      appliedDate: "2024-01-10",
-      lastUpdate: "Application under review"
-    },
-    {
-      id: 2,
-      company: "InnovateLabs",
-      position: "UI/UX Designer",
-      status: "approved",
-      appliedDate: "2024-01-08",
-      lastUpdate: "Interview scheduled for Jan 15"
-    },
-    {
-      id: 3,
-      company: "StartupXYZ",
-      position: "Product Manager",
-      status: "rejected",
-      appliedDate: "2024-01-05",
-      lastUpdate: "Position filled by another candidate"
-    }
-  ];
   const getStatusIcon = (status) => {
     switch (status) {
       case 'pending':
@@ -113,7 +122,8 @@ const StudentDashboard = () => {
                   <p className="text-sm text-muted-foreground">{app.lastUpdate}</p>
                 </div>
                 <Badge className={`${app.status === 'pending' ? 'status-pending' :
-                  app.status === 'approved' ? 'status-approved' : 'status-rejected'}`}>
+                  app.status === 'approved' ? 'status-approved' : 'status-rejected'
+                  } `}>
                   {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                 </Badge>
               </div>
@@ -221,48 +231,49 @@ const StudentDashboard = () => {
 
         {/* Job Cards */}
         <div className="space-y-4">
-          {filteredJobs.map((job) => (<Card key={job.id} className="card-elevated p-6 hover:shadow-glow transition-smooth cursor-pointer" onClick={() => {
+          {jobs.map((job) => (<Card key={job.id} className="card-elevated p-6 hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
             setSelectedJob(job);
             setDetailsOpen(true);
           }}>
             <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-xl font-semibold">{job.title}</h3>
-                  {job.status === 'applied' && (<Badge className="status-pending">Applied</Badge>)}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
+                  <Building2 className="w-8 h-8 text-primary" />
                 </div>
-                <p className="text-primary font-medium mb-2">{job.company}</p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {job.location}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
-                    {job.salary}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {job.posted}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {job.skills.map((skill) => (<Badge key={skill} variant="secondary" className="text-xs">
-                    {skill}
-                  </Badge>))}
+                <div>
+                  <h3 className="font-semibold text-lg">{job.title}</h3>
+                  <p className="text-muted-foreground">{job.company}</p>
                 </div>
               </div>
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                <Bookmark className="w-5 h-5" />
+              </Button>
             </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-destructive">
-                Deadline: {new Date(job.deadline).toLocaleDateString()}
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge variant="secondary" className="font-normal">
+                <MapPin className="w-3 h-3 mr-1" />
+                {job.location}
+              </Badge>
+              <Badge variant="secondary" className="font-normal">
+                <BriefcaseIcon className="w-3 h-3 mr-1" />
+                {job.type}
+              </Badge>
+              <Badge variant="secondary" className="font-normal">
+                <Clock className="w-3 h-3 mr-1" />
+                {job.salary}
+              </Badge>
+            </div>
+
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Posted {new Date(job.posted).toLocaleDateString()}
               </p>
-              <Button className="btn-gradient" disabled={job.status === 'applied'} onClick={(e) => {
+              <Button className="btn-gradient" size="sm" onClick={(e) => {
                 e.stopPropagation();
-                setSelectedJob(job);
-                setApplicationOpen(true);
+                handleApply(job);
               }}>
-                {job.status === 'applied' ? 'Already Applied' : 'Apply Now'}
+                Apply Now
               </Button>
             </div>
           </Card>))}
@@ -273,22 +284,24 @@ const StudentDashboard = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Application Status</h2>
-          <Button variant="outline" size="sm" onClick={() => setActiveTab("applications")}>
+          <Button variant="outline" size="sm" onClick={() => onTabChange && onTabChange("applications")}>
             View All
           </Button>
         </div>
         <div className="space-y-3">
           {applications.slice(0, 3).map((app) => (<Card key={app.id} className="card-elevated p-4">
             <div className="flex items-start gap-3">
-              <div className={`mt-1 ${app.status === 'pending' ? 'text-warning' :
-                app.status === 'approved' ? 'text-success' : 'text-destructive'}`}>
+              <div className={`mt - 1 ${app.status === 'pending' ? 'text-warning' :
+                app.status === 'approved' ? 'text-success' : 'text-destructive'
+                } `}>
                 {getStatusIcon(app.status)}
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium truncate">{app.position}</h4>
                 <p className="text-sm text-muted-foreground truncate">{app.company}</p>
-                <div className={`inline-flex mt-2 ${app.status === 'pending' ? 'status-pending' :
-                  app.status === 'approved' ? 'status-approved' : 'status-rejected'}`}>
+                <div className={`inline - flex mt - 2 ${app.status === 'pending' ? 'status-pending' :
+                  app.status === 'approved' ? 'status-approved' : 'status-rejected'
+                  } `}>
                   {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">{app.lastUpdate}</p>
@@ -297,7 +310,7 @@ const StudentDashboard = () => {
           </Card>))}
         </div>
 
-        <Button variant="outline" className="w-full" onClick={() => setActiveTab("applications")}>
+        <Button variant="outline" className="w-full" onClick={() => onTabChange && onTabChange("applications")}>
           View All Applications
         </Button>
       </div>
@@ -308,12 +321,12 @@ const StudentDashboard = () => {
     <div className="flex items-center gap-2 mb-6 p-2 bg-secondary/20 rounded-lg">
       {[
         { id: "dashboard", label: "Dashboard", icon: Building2 },
-        { id: "applications", label: "My Applications", icon: Briefcase },
+        { id: "applications", label: "My Applications", icon: BriefcaseIcon },
         { id: "profile", label: "Profile", icon: User },
         { id: "notifications", label: "Notifications", icon: Bell }
       ].map((tab) => {
         const Icon = tab.icon;
-        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => setActiveTab(tab.id)} className="flex items-center gap-2">
+        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => onTabChange && onTabChange(tab.id)} className="flex items-center gap-2">
           <Icon className="w-4 h-4" />
           {tab.label}
         </Button>);
@@ -336,6 +349,7 @@ const StudentDashboard = () => {
       job={selectedJob}
       open={applicationOpen}
       onOpenChange={setApplicationOpen}
+      onSubmit={onApplicationSubmit}
     />
   </div>);
 };

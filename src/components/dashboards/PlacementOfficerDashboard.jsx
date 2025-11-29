@@ -6,9 +6,9 @@ import PlacementReports from "@/components/PlacementReports";
 import DriveManagement from "@/components/DriveManagement";
 import DriveDetailsDialog from "@/components/DriveDetailsDialog";
 import { BarChart3, TrendingUp, Users, Building2, Calendar, Download, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, Eye } from "lucide-react";
-const PlacementOfficerDashboard = () => {
+const PlacementOfficerDashboard = ({ activeTab = "dashboard", onTabChange }) => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
-  const [activeTab, setActiveTab] = useState("dashboard");
+  // activeTab is now a prop
   const [selectedDrive, setSelectedDrive] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const placementStats = [
@@ -94,7 +94,7 @@ const PlacementOfficerDashboard = () => {
             <Plus className="w-4 h-4 mr-2" />
             Schedule Drive
           </Button>
-          <Button className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-primary-foreground/30" onClick={() => setActiveTab("reports")}>
+          <Button className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-primary-foreground/30" onClick={() => onTabChange && onTabChange("reports")}>
             <FileText className="w-4 h-4 mr-2" />
             Generate Report
           </Button>
@@ -288,7 +288,7 @@ const PlacementOfficerDashboard = () => {
         { id: "drives", label: "Drive Management", icon: Calendar },
       ].map((tab) => {
         const Icon = tab.icon;
-        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => setActiveTab(tab.id)} className="flex items-center gap-2">
+        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => onTabChange && onTabChange(tab.id)} className="flex items-center gap-2">
           <Icon className="w-4 h-4" />
           {tab.label}
         </Button>);

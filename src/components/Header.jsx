@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Users, GraduationCap, Building2, ClipboardList, Menu, X, Bell, Search, LogOut } from "lucide-react";
 
-const Header = ({ currentRole }) => {
+const Header = ({ currentRole, activeTab, onNavigate }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -19,27 +19,25 @@ const Header = ({ currentRole }) => {
 
   const roleLinks = {
     student: [
-      { label: "Jobs", href: "#" },
-      { label: "Companies", href: "#" },
-      { label: "Services", href: "#" },
-      { label: "My Applications", href: "#" },
+      { id: "dashboard", label: "Jobs" },
+      { id: "applications", label: "My Applications" },
+      { id: "profile", label: "Profile" },
+      { id: "notifications", label: "Notifications" },
     ],
     employer: [
-      { label: "Post Job", href: "#" },
-      { label: "Candidates", href: "#" },
-      { label: "Interviews", href: "#" },
-      { label: "Company Profile", href: "#" },
+      { id: "dashboard", label: "Dashboard" },
+      { id: "post-job", label: "Post Job" },
+      { id: "applicants", label: "Candidates" },
     ],
     "placement-officer": [
-      { label: "Students", href: "#" },
-      { label: "Drives", href: "#" },
-      { label: "Analytics", href: "#" },
-      { label: "Notices", href: "#" },
+      { id: "dashboard", label: "Dashboard" },
+      { id: "drives", label: "Drives" },
+      { id: "reports", label: "Reports" },
     ],
     admin: [
-      { label: "User Management", href: "#" },
-      { label: "System Settings", href: "#" },
-      { label: "Reports", href: "#" },
+      { id: "dashboard", label: "Overview" },
+      { id: "users", label: "User Management" },
+      { id: "activity", label: "Activity" },
     ],
   };
 
@@ -53,7 +51,7 @@ const Header = ({ currentRole }) => {
     <header className="card-elevated sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto flex items-center justify-between p-4">
         {/* Logo */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigate && onNavigate("dashboard")}>
           <div className="w-10 h-10 rounded-xl gradient-hero flex items-center justify-center shadow-glow">
             <Icon className="w-6 h-6 text-white" />
           </div>
@@ -70,7 +68,13 @@ const Header = ({ currentRole }) => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1 mx-4">
           {currentLinks.map((link, index) => (
-            <Button key={index} variant="ghost" size="sm" className="text-[17px] px-[22px] py-0 font-medium hover:bg-secondary/50">
+            <Button
+              key={index}
+              variant={activeTab === link.id ? "default" : "ghost"}
+              size="sm"
+              className="text-[15px] px-4 py-0 font-medium hover:bg-secondary/50"
+              onClick={() => onNavigate && onNavigate(link.id)}
+            >
               {link.label}
             </Button>
           ))}
@@ -106,7 +110,16 @@ const Header = ({ currentRole }) => {
           <div className="container mx-auto p-4 space-y-4">
             <div className="space-y-2">
               {currentLinks.map((link, index) => (
-                <Button key={index} variant="ghost" size="sm" className="w-full justify-start">
+                <Button
+                  key={index}
+                  variant={activeTab === link.id ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    onNavigate && onNavigate(link.id);
+                    setIsMenuOpen(false);
+                  }}
+                >
                   {link.label}
                 </Button>
               ))}

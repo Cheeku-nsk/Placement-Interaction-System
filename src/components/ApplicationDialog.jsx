@@ -13,17 +13,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { CheckCircle } from "lucide-react";
 
-const ApplicationDialog = ({ job, open, onOpenChange }) => {
+const ApplicationDialog = ({ job, open, onOpenChange, onSubmit }) => {
     const [submitted, setSubmitted] = useState(false);
 
     if (!job) return null;
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Simulate API call
-        setTimeout(() => {
-            setSubmitted(true);
-        }, 1000);
+        if (onSubmit) {
+            onSubmit({
+                resume: "resume.pdf", // Mock file
+                coverLetter: e.target.coverLetter.value,
+                portfolio: e.target.portfolio.value
+            });
+        } else {
+            // Fallback simulation
+            setTimeout(() => {
+                setSubmitted(true);
+            }, 1000);
+        }
     };
 
     const handleClose = () => {
