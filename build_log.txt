@@ -1,0 +1,67 @@
+﻿[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 3 modules transformed.
+node.exe : 
+[31mx[39m Build 
+failed in 475ms
+At line:1 char:1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ([31mx   
+ [39m Build faile    
+d in 475ms:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+[31merror during 
+build:
+[31mCould not 
+resolve "./App.tsx" 
+from 
+"src/main.jsx"[31m
+file: [36mC:/Users/D
+ELL/Documents/talent-
+trail-blueprint-main/
+src/main.jsx[31m
+    at 
+getRollupError (file:
+///C:/Users/DELL/Docu
+ments/talent-trail-bl
+ueprint-main/node_mod
+ules/rollup/dist/es/s
+hared/parseAst.js:395
+:41)
+    at error (file://
+/C:/Users/DELL/Docume
+nts/talent-trail-blue
+print-main/node_modul
+es/rollup/dist/es/sha
+red/parseAst.js:391:4
+2)
+    at ModuleLoader.h
+andleInvalidResolvedI
+d (file:///C:/Users/D
+ELL/Documents/talent-
+trail-blueprint-main/
+node_modules/rollup/d
+ist/es/shared/node-en
+try.js:20006:24)
+    at file:///C:/Use
+rs/DELL/Documents/tal
+ent-trail-blueprint-m
+ain/node_modules/roll
+up/dist/es/shared/nod
+e-entry.js:19966:26[
+39m

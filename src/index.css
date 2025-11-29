@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Job Placement System Design System */
+@layer base {
+  :root {
+    --background: 180 20% 95%;
+    --foreground: 200 19% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 19% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 19% 18%;
+
+    --primary: 174 100% 27%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 174 100% 37%;
+
+    --secondary: 170 100% 15%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 180 10% 90%;
+    --muted-foreground: 200 10% 40%;
+
+    --accent: 187 71% 50%;
+    --accent-foreground: 200 19% 18%;
+
+    --success: 142 76% 47%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 45 93% 58%;
+    --warning-foreground: 45 30% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 10% 85%;
+    --input: 200 10% 90%;
+    --ring: 174 100% 27%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-hero: linear-gradient(135deg, hsl(174 100% 27%), hsl(187 71% 50%), hsl(170 100% 15%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(180 20% 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+    --shadow-card: 0 8px 32px -8px hsl(var(--primary) / 0.15);
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.2);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .dark {
+    --background: 224 20% 8%;
+    --foreground: 247 30% 92%;
+
+    --card: 224 20% 10%;
+    --card-foreground: 247 30% 92%;
+
+    --popover: 224 20% 10%;
+    --popover-foreground: 247 30% 92%;
+
+    --primary: 247 84% 67%;
+    --primary-foreground: 224 20% 8%;
+    --primary-glow: 247 84% 77%;
+
+    --secondary: 224 20% 15%;
+    --secondary-foreground: 247 30% 85%;
+
+    --muted: 224 20% 12%;
+    --muted-foreground: 247 15% 60%;
+
+    --accent: 267 84% 77%;
+    --accent-foreground: 224 20% 8%;
+
+    --success: 142 76% 57%;
+    --success-foreground: 224 20% 8%;
+
+    --warning: 45 93% 68%;
+    --warning-foreground: 45 30% 10%;
+
+    --destructive: 0 72% 61%;
+    --destructive-foreground: 224 20% 8%;
+
+    --border: 224 20% 18%;
+    --input: 224 20% 15%;
+    --ring: 247 84% 67%;
+
+    /* Dark mode gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(247 84% 67%), hsl(267 84% 77%), hsl(287 84% 77%));
+    --gradient-card: linear-gradient(145deg, hsl(224 20% 10%), hsl(224 20% 12%));
+    
+    /* Dark shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}
+
+@layer components {
+  .btn-gradient {
+    @apply bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-soft hover:shadow-glow transition-smooth;
+  }
+
+  .card-elevated {
+    @apply gradient-card shadow-card border border-border/50 transition-smooth hover:shadow-glow;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-pending {
+    @apply status-badge bg-warning/10 text-warning-foreground border border-warning/20;
+  }
+
+  .status-approved {
+    @apply status-badge bg-success/10 text-success-foreground border border-success/20;
+  }
+
+  .status-rejected {
+    @apply status-badge bg-destructive/10 text-destructive-foreground border border-destructive/20;
+  }
+}
