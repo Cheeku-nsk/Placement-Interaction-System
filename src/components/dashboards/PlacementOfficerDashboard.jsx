@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import PlacementReports from "@/components/PlacementReports";
 import DriveManagement from "@/components/DriveManagement";
+import DriveDetailsDialog from "@/components/DriveDetailsDialog";
 import { BarChart3, TrendingUp, Users, Building2, Calendar, Download, FileText, CheckCircle, Clock, AlertTriangle, Filter, Plus, Eye } from "lucide-react";
 const PlacementOfficerDashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [selectedDrive, setSelectedDrive] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const placementStats = [
     { label: "Total Placements", value: "127", change: "+15%", icon: CheckCircle, color: "text-success" },
     { label: "Active Drives", value: "8", change: "+2", icon: Calendar, color: "text-primary" },
@@ -170,7 +173,10 @@ const PlacementOfficerDashboard = () => {
                 <span className="text-muted-foreground ml-1">students registered</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => {
+                  setSelectedDrive(drive);
+                  setDetailsOpen(true);
+                }}>
                   <Eye className="w-4 h-4 mr-2" />
                   View Details
                 </Button>
@@ -290,6 +296,12 @@ const PlacementOfficerDashboard = () => {
     </div>
 
     {renderContent()}
+
+    <DriveDetailsDialog
+      drive={selectedDrive}
+      open={detailsOpen}
+      onOpenChange={setDetailsOpen}
+    />
   </div>);
 };
 export default PlacementOfficerDashboard;

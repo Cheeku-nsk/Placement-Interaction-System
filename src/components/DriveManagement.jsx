@@ -21,10 +21,15 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DriveDetailsDialog from "@/components/DriveDetailsDialog";
+import ApplicantsListDialog from "@/components/ApplicantsListDialog";
 
 const DriveManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+    const [selectedDrive, setSelectedDrive] = useState(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [applicantsOpen, setApplicantsOpen] = useState(false);
 
     // Mock data for drives
     const drives = [
@@ -142,7 +147,10 @@ const DriveManagement = () => {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => {
+                                            setSelectedDrive(drive);
+                                            setDetailsOpen(true);
+                                        }}>
                                             <Eye className="w-4 h-4 mr-2" /> View Details
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
@@ -177,7 +185,10 @@ const DriveManagement = () => {
 
                             {/* Actions */}
                             <div className="pt-4 border-t border-border/50 flex gap-2">
-                                <Button variant="outline" className="flex-1">
+                                <Button variant="outline" className="flex-1" onClick={() => {
+                                    setSelectedDrive(drive);
+                                    setApplicantsOpen(true);
+                                }}>
                                     View Applicants
                                 </Button>
                                 <Button className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground">
@@ -188,6 +199,18 @@ const DriveManagement = () => {
                     </Card>
                 ))}
             </div>
+
+            <DriveDetailsDialog
+                drive={selectedDrive}
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}
+            />
+
+            <ApplicantsListDialog
+                drive={selectedDrive}
+                open={applicantsOpen}
+                onOpenChange={setApplicantsOpen}
+            />
         </div>
     );
 };
