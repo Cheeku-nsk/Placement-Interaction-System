@@ -315,20 +315,7 @@ const EmployerDashboard = ({ activeTab = "dashboard", onTabChange }) => {
     </div>
   </div>);
   return (<div className="container mx-auto p-6">
-    {/* Navigation Tabs */}
-    <div className="flex items-center gap-2 mb-6 p-2 bg-secondary/20 rounded-lg">
-      {[
-        { id: "dashboard", label: "Dashboard", icon: Eye },
-        { id: "post-job", label: "Post Job", icon: Plus },
-        { id: "applicants", label: "Manage Applicants", icon: Users },
-      ].map((tab) => {
-        const Icon = tab.icon;
-        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => onTabChange && onTabChange(tab.id)} className="flex items-center gap-2">
-          <Icon className="w-4 h-4" />
-          {tab.label}
-        </Button>);
-      })}
-    </div>
+
 
     {renderContent()}
 

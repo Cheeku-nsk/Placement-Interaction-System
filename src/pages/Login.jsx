@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, LogIn } from "lucide-react";
+import { ArrowLeft, LogIn, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { storage } from "@/services/storage";
 
@@ -17,13 +17,36 @@ const Login = () => {
         email: "",
         password: "",
     });
+    const [captchaInput, setCaptchaInput] = useState("");
+    const [captchaValue, setCaptchaValue] = useState("");
     const [loading, setLoading] = useState(false);
 
     // Format role label
     const roleLabel = role.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
+    const generateCaptcha = () => {
+        const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        let captcha = "";
+        for (let i = 0; i < 6; i++) {
+            captcha += chars[Math.floor(Math.random() * chars.length)];
+        }
+        setCaptchaValue(captcha);
+    };
+
+    useEffect(() => {
+        generateCaptcha();
+    }, []);
+
     const handleLogin = async (e) => {
         e.preventDefault();
+
+        if (captchaInput !== captchaValue) {
+            toast.error("Invalid CAPTCHA. Please try again.");
+            generateCaptcha();
+            setCaptchaInput("");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -104,6 +127,34 @@ const Login = () => {
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                required
+                                className="bg-background/50"
+                            />
+                        </div>
+
+                        {/* CAPTCHA Section */}
+                        <div className="space-y-2">
+                            <Label htmlFor="captcha">Enter CAPTCHA</Label>
+                            <div className="flex gap-2">
+                                <div className="flex-1 bg-secondary/30 p-2 rounded-md flex items-center justify-center font-mono text-lg font-bold tracking-widest select-none border border-border/50">
+                                    {captchaValue}
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={generateCaptcha}
+                                    title="Refresh CAPTCHA"
+                                >
+                                    <RefreshCw className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <Input
+                                id="captcha"
+                                type="text"
+                                placeholder="Enter the code above"
+                                value={captchaInput}
+                                onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
                                 required
                                 className="bg-background/50"
                             />

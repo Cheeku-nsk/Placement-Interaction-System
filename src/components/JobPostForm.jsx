@@ -4,7 +4,70 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Save, Send, Plus, X, MapPin, DollarSign, Calendar, Users, GraduationCap } from "lucide-react";
 const JobPostForm = ({ onClose, onSubmit }) => {
-  // ... state ...
+  const [formData, setFormData] = useState({
+    title: "",
+    department: "",
+    location: "",
+    jobType: "Full-time",
+    positions: "",
+    salaryMin: "",
+    salaryMax: "",
+    applicationDeadline: "",
+    description: "",
+    requirements: "",
+    skills: [],
+    eligibility: {
+      branches: [],
+      minCGPA: "",
+      graduationYear: ""
+    }
+  });
+  const [currentSkill, setCurrentSkill] = useState("");
+
+  const availableBranches = [
+    "Computer Science",
+    "Information Technology",
+    "Electronics & Comm.",
+    "Electrical",
+    "Mechanical",
+    "Civil"
+  ];
+
+  const addSkill = () => {
+    if (currentSkill && !formData.skills.includes(currentSkill)) {
+      setFormData(prev => ({ ...prev, skills: [...prev.skills, currentSkill] }));
+      setCurrentSkill("");
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
+
+  const addBranch = (branch) => {
+    if (!formData.eligibility.branches.includes(branch)) {
+      setFormData(prev => ({
+        ...prev,
+        eligibility: {
+          ...prev.eligibility,
+          branches: [...prev.eligibility.branches, branch]
+        }
+      }));
+    }
+  };
+
+  const removeBranch = (branchToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      eligibility: {
+        ...prev.eligibility,
+        branches: prev.eligibility.branches.filter(branch => branch !== branchToRemove)
+      }
+    }));
+  };
 
   const handleSubmit = (isDraft = false) => {
     if (onSubmit) {

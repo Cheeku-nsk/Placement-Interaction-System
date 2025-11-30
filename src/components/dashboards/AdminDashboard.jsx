@@ -226,20 +226,7 @@ const AdminDashboard = ({ activeTab = "dashboard", onTabChange }) => {
   };
 
   return (<div className="container mx-auto p-6 space-y-6">
-    {/* Navigation Tabs */}
-    <div className="flex items-center gap-2 mb-6 p-2 bg-secondary/20 rounded-lg">
-      {[
-        { id: "dashboard", label: "Overview", icon: BarChart3 },
-        { id: "users", label: "User Management", icon: Users },
-        { id: "activity", label: "Activity", icon: ClipboardList },
-      ].map((tab) => {
-        const Icon = tab.icon;
-        return (<Button key={tab.id} variant={activeTab === tab.id ? "default" : "ghost"} size="sm" onClick={() => onTabChange && onTabChange(tab.id)} className="flex items-center gap-2">
-          <Icon className="w-4 h-4" />
-          {tab.label}
-        </Button>);
-      })}
-    </div>
+
 
     {renderContent()}
 
